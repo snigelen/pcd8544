@@ -46,11 +46,6 @@
 #define LCD_VOP (1<<7)
 
 
-#if USE_FONT_8x14
-#include "Fixed_8x13.h"
-#endif
-
-
 const unsigned char PROGMEM small_num[][4] = {
         {0x0e,0x15,0x0e,0x00}, // 48, zero
         {0x12,0x1f,0x10,0x00}, // 49, one
@@ -168,17 +163,6 @@ const unsigned char PROGMEM font5x7 [][5]  =  {
 
 
 
-#if 0
-
-
-void lcd_clear_rest_of_line(void)
-{
-	while (current_column != 0)
-		data(0);
-}
-#endif
-
-//////////////////////////////////////////////////////
 
 pcd8544::pcd8544(uint8_t dc_pin, uint8_t reset_pin, uint8_t cs_pin, uint8_t hardware_spi)
 {
@@ -253,9 +237,9 @@ void pcd8544::write(uint8_t ch)
 	uint8_t i;
 
 	if (ch == '\r')
-		setCursor(current_row, 0);
+		gotoRc(current_row, 0);
 	if (ch == '\n')
-		setCursor(current_row+1, current_column);
+		gotoRc(current_row+1, current_column);
 	if (ch >= ' ' && ch <= 127) {
 		for (i = 0; i < 5; i++)
 			data(pgm_read_byte(&font5x7[ch-' '][i]) <<1);
@@ -328,3 +312,11 @@ void pcd8544::smallNum(uint8_t num, uint8_t shift)
 	for (i = 0; i < 4; i++)
 		data(pgm_read_byte(&small_num[num][i])<<shift);
 }
+
+
+void pcd8544::clearRestOfLine(void)
+{
+	while (current_column != 0)
+		data(0);
+}
+

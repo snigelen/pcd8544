@@ -13,6 +13,7 @@ public:
 	void gotoRc(uint8_t row, uint8_t pixel_column);
 	void data(uint8_t data);
 	void smallNum(uint8_t num, uint8_t shift = 1);
+	void clearRestOfLine(void);
 
 private:
 	void send(uint8_t dc, uint8_t data);
