@@ -199,7 +199,7 @@ void pcd8544::begin(void)
 
 	if (hardware_spi_num > 0) {
 #ifdef BOARD_maple
-		spi_init(hardware_spi, SPI_PRESCALE_16, SPI_MSBFIRST, 0);
+		spi_init(hardware_spi_num, SPI_PRESCALE_16, SPI_MSBFIRST, 0);
 #else
 		pinMode(10, OUTPUT); // To ensure master mode
 		SPCR |= (1<<SPE) | (1<<MSTR);

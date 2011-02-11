@@ -27,7 +27,7 @@ pcd8544 lcd(5, 6, 7);
 void setup(void)
 {
 #ifdef BOARD_maple
-	pinMode(ADPIN, ANALOG_INPUT);
+	pinMode(ADPIN, INPUT_ANALOG);
 #else
 	Serial.begin(115200);
 #endif
@@ -55,7 +55,7 @@ void setup(void)
 		lcd.smallNum(i);
 
 	lcd.setCursor(0, 3);
-	lcd.println("   PCD8522");
+	lcd.println("   PCD8544");
 	lcd.println("      on  ");
 #ifdef BOARD_maple
 	lcd.print("  the Maple");
