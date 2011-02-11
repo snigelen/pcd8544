@@ -29,10 +29,10 @@ private:
 	uint8_t current_row, current_column;
 };
 
-#define LCD_LINES 6
-#define LCD_COLS  14
-#define LCD_WIDTH  84
-#define LCD_HEIGHT 48
+#define PCD8544_LINES 6
+#define PCD8544_COLS  14
+#define PCD8544_WIDTH  84
+#define PCD8544_HEIGHT 48
 
 
 #endif

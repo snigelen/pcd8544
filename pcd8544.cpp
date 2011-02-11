@@ -14,36 +14,36 @@
 
 
 // LCD commands, Table 1, page 14
-#define LCD_FUNCTION_SET (1<<5)
-#define LCD_FUNCTION_PD  (1<<2)
-#define LCD_FUNCTION_V   (1<<1)
-#define LCD_FUNCTION_H   (1<<0)
+#define PCD8544_FUNCTION_SET (1<<5)
+#define PCD8544_FUNCTION_PD  (1<<2)
+#define PCD8544_FUNCTION_V   (1<<1)
+#define PCD8544_FUNCTION_H   (1<<0)
 
 // Normal instructions, H = 0
-#define LCD_DISPLAY_CONTROL (1<<3)
-#define LCD_DISPLAY_CONTROL_D (1<<2)
-#define LCD_DISPLAY_CONTROL_E (1<<0)
-#define LCD_DISPLAY_CONTROL_BLANK 0
-#define LCD_DISPLAY_CONTROL_NORMAL_MODE  LCD_DISPLAY_CONTROL_D
-#define LCD_DISPLAY_CONTROL_ALL_ON       LCD_DISPLAY_CONTROL_E
-#define LCD_DISPLAY_CONTROL_INVERSE      (LCD_DISPLAY_CONTROL_D|LCD_DISPLAY_CONTROL_E)
+#define PCD8544_DISPLAY_CONTROL (1<<3)
+#define PCD8544_DISPLAY_CONTROL_D (1<<2)
+#define PCD8544_DISPLAY_CONTROL_E (1<<0)
+#define PCD8544_DISPLAY_CONTROL_BLANK 0
+#define PCD8544_DISPLAY_CONTROL_NORMAL_MODE  PCD8544_DISPLAY_CONTROL_D
+#define PCD8544_DISPLAY_CONTROL_ALL_ON       PCD8544_DISPLAY_CONTROL_E
+#define PCD8544_DISPLAY_CONTROL_INVERSE      (PCD8544_DISPLAY_CONTROL_D|PCD8544_DISPLAY_CONTROL_E)
 
-#define LCD_SET_Y_ADDRESS (1<<6)
-#define LCD_Y_ADRESS_MASK 0b111
-#define LCD_SET_X_ADDRESS (1<<7)
-#define LCD_X_ADRESS_MASK 0b01111111
+#define PCD8544_SET_Y_ADDRESS (1<<6)
+#define PCD8544_Y_ADRESS_MASK 0b111
+#define PCD8544_SET_X_ADDRESS (1<<7)
+#define PCD8544_X_ADRESS_MASK 0b01111111
 
 // Extended instructions. H = 1
-#define LCD_TEMP_CONTROL (1<<2)
-#define LCD_TEMP_TC1     (1<<1)
-#define LCD_TEMP_TC0     (1<<0)
+#define PCD8544_TEMP_CONTROL (1<<2)
+#define PCD8544_TEMP_TC1     (1<<1)
+#define PCD8544_TEMP_TC0     (1<<0)
 
-#define LCD_BIAS     (1<<4)
-#define LCD_BIAS_BS2 (1<<2)
-#define LCD_BIAS_BS1 (1<<1)
-#define LCD_BIAS_BS0 (1<<0)
+#define PCD8544_BIAS     (1<<4)
+#define PCD8544_BIAS_BS2 (1<<2)
+#define PCD8544_BIAS_BS1 (1<<1)
+#define PCD8544_BIAS_BS0 (1<<0)
 
-#define LCD_VOP (1<<7)
+#define PCD8544_VOP (1<<7)
 
 
 const unsigned char PROGMEM small_num[][4] = {
@@ -211,24 +211,24 @@ void pcd8544::begin(void)
   
 	// Extenden instructions and !powerdown
 	// and horizontal adressing (autoincrement of x-adress)
-	command(LCD_FUNCTION_SET | LCD_FUNCTION_H);
+	command(PCD8544_FUNCTION_SET | PCD8544_FUNCTION_H);
 	// Set Vop to 0x3F
-	command(LCD_VOP | 0x3F);
+	command(PCD8544_VOP | 0x3F);
 	// Vlcd temp. coeff. 0
-	command(LCD_TEMP_CONTROL);
+	command(PCD8544_TEMP_CONTROL);
 	// Bias system 4, 1:48
-	command(LCD_BIAS | LCD_BIAS_BS1 | LCD_BIAS_BS0);
+	command(PCD8544_BIAS | PCD8544_BIAS_BS1 | PCD8544_BIAS_BS0);
 	// Set H = 0 for normal instructions
-	command(LCD_FUNCTION_SET);  
+	command(PCD8544_FUNCTION_SET);  
 	// Normal mode
-	command(LCD_DISPLAY_CONTROL | LCD_DISPLAY_CONTROL_NORMAL_MODE);
+	command(PCD8544_DISPLAY_CONTROL | PCD8544_DISPLAY_CONTROL_NORMAL_MODE);
 }
 
 
 void pcd8544::clear(void)
 {
 	int i;
-	for (i = 0; i < LCD_WIDTH*LCD_LINES; i++)
+	for (i = 0; i < PCD8544_WIDTH*PCD8544_LINES; i++)
 		data(0);
 }
 
@@ -286,21 +286,21 @@ void pcd8544::setCursor(uint8_t column, uint8_t row)
 
 void pcd8544::gotoRc(uint8_t row, uint8_t column)
 {
-	if (row >= LCD_LINES)
-		row %= LCD_LINES;
-	if (column >= LCD_WIDTH)
-		row %= LCD_WIDTH;
-	command(LCD_SET_X_ADDRESS | column);
-	command(LCD_SET_Y_ADDRESS | row);
+	if (row >= PCD8544_LINES)
+		row %= PCD8544_LINES;
+	if (column >= PCD8544_WIDTH)
+		row %= PCD8544_WIDTH;
+	command(PCD8544_SET_X_ADDRESS | column);
+	command(PCD8544_SET_Y_ADDRESS | row);
 	current_row = row;
 	current_column = column;
 }
 
 void pcd8544::inc_row_column(void)
 {
-	if (++current_column >= LCD_WIDTH) {
+	if (++current_column >= PCD8544_WIDTH) {
 		current_column = 0;
-		if (++current_row >= LCD_LINES)
+		if (++current_row >= PCD8544_LINES)
 			    current_row = 0;
 	}
 }

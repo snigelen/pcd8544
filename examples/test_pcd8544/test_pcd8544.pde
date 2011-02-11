@@ -46,7 +46,7 @@ void setup(void)
 	lcd.println("Temp: ");   // println skips to second line
 
 	// Draw a double line
-	for (uint8_t i = 0; i < LCD_WIDTH/2-2; i++)
+	for (uint8_t i = 0; i < PCD8544_WIDTH/2-2; i++)
 		lcd.data(0b00010100);
 	lcd.data(0); // A blink pixel column
 
