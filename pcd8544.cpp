@@ -167,153 +167,164 @@ const unsigned char PROGMEM font5x7 [][5]  =  {
 };
 
 
-uint8_t lcd_current_row, lcd_current_column;
 
-void lcd_inc_rc(void)
+#if 0
+
+
+void lcd_clear_rest_of_line(void)
 {
-	if (++lcd_current_column >= LCD_WIDTH) {
-		lcd_current_column = 0;
-		if (++lcd_current_row >= LCD_LINES)
-			    lcd_current_row = 0;
-	}
+	while (current_column != 0)
+		data(0);
 }
+#endif
 
-void lcd_write(uint8_t dc, uint8_t data)
+//////////////////////////////////////////////////////
+
+pcd8544::pcd8544(uint8_t dc_pin, uint8_t reset_pin, uint8_t cs_pin, uint8_t hardware_spi)
 {
-	digitalWrite(PIN_DC, dc);
-	digitalWrite(PIN_SCE, LOW);
-#if SOFT_SPI
-	shiftOut(PIN_SDIN, PIN_SCLK, MSBFIRST, data);
-#else
+	dc = dc_pin;
+	cs = cs_pin;
+	reset = reset_pin;
+	hardware_spi_num = hardware_spi;
+	if (hardware_spi_num > 2)
+		hardware_spi_num = 2;
+	sdin = 11;
+	sclk = 13;
 #ifdef BOARD_maple
-	spi_tx_byte(1, data);
-#else
-	SPDR = data;
-	while(!(SPSR & (1<<SPIF))) ;
+	if (hardware_spi_num  == 2) {
+		sdin = 32;
+		sclk = 34;
+	}
 #endif
-#endif
-	digitalWrite(PIN_SCE, HIGH);
-	if(dc)
-		lcd_inc_rc();
 }
 
 
-void lcd_init(void)
+void pcd8544::begin(void)
 {
-	pinMode(PIN_SCE,   OUTPUT);
-	pinMode(PIN_RESET, OUTPUT);
-	pinMode(PIN_DC,    OUTPUT);
-	pinMode(PIN_SDIN,  OUTPUT);
-	pinMode(PIN_SCLK,  OUTPUT);
+	pinMode(cs,   OUTPUT);
+	pinMode(reset, OUTPUT);
+	pinMode(dc,    OUTPUT);
+	pinMode(sdin,  OUTPUT);
+	pinMode(sclk,  OUTPUT);
 
 #ifdef BOARD_maple
 	timer_set_mode(TIMER3, 2, TIMER_DISABLED);
         timer_set_mode(TIMER3, 1, TIMER_DISABLED);
 #endif
 
-	
-#if ! SOFT_SPI
+
+	if (hardware_spi_num > 0) {
 #ifdef BOARD_maple
-	spi_init(1, SPI_PRESCALE_16, SPI_MSBFIRST, 0);
+		spi_init(hardware_spi, SPI_PRESCALE_16, SPI_MSBFIRST, 0);
 #else
-	pinMode(10, OUTPUT); // To ensure master mode
-	SPCR |= (1<<SPE) | (1<<MSTR);
+		pinMode(10, OUTPUT); // To ensure master mode
+		SPCR |= (1<<SPE) | (1<<MSTR);
 #endif
-#endif
-	digitalWrite(PIN_RESET, LOW);
+	}
+	digitalWrite(reset, LOW);
 	delay(1);
-	digitalWrite(PIN_RESET, HIGH);
+	digitalWrite(reset, HIGH);
   
 	// Extenden instructions and !powerdown
 	// and horizontal adressing (autoincrement of x-adress)
-	lcd_cmd(LCD_FUNCTION_SET | LCD_FUNCTION_H);
+	command(LCD_FUNCTION_SET | LCD_FUNCTION_H);
 	// Set Vop to 0x3F
-	lcd_cmd(LCD_VOP | 0x3F);
+	command(LCD_VOP | 0x3F);
 	// Vlcd temp. coeff. 0
-	lcd_cmd(LCD_TEMP_CONTROL);
+	command(LCD_TEMP_CONTROL);
 	// Bias system 4, 1:48
-	lcd_cmd(LCD_BIAS | LCD_BIAS_BS1 | LCD_BIAS_BS0);
+	command(LCD_BIAS | LCD_BIAS_BS1 | LCD_BIAS_BS0);
 	// Set H = 0 for normal instructions
-	lcd_cmd(LCD_FUNCTION_SET);  
+	command(LCD_FUNCTION_SET);  
 	// Normal mode
-	lcd_cmd(LCD_DISPLAY_CONTROL | LCD_DISPLAY_CONTROL_NORMAL_MODE);
+	command(LCD_DISPLAY_CONTROL | LCD_DISPLAY_CONTROL_NORMAL_MODE);
 }
 
 
-void lcd_clear(void)
+void pcd8544::clear(void)
 {
 	int i;
 	for (i = 0; i < LCD_WIDTH*LCD_LINES; i++)
-		lcd_data(0);
+		data(0);
+}
+
+void pcd8544::write(uint8_t ch)
+{
+	uint8_t i;
+
+	if (ch == '\r')
+		setCursor(current_row, 0);
+	if (ch == '\n')
+		setCursor(current_row+1, current_column);
+	if (ch >= ' ' && ch <= 127) {
+		for (i = 0; i < 5; i++)
+			data(pgm_read_byte(&font5x7[ch-' '][i]) <<1);
+		data(0);
+	}
 }
 
 
-void lcd_goto(uint8_t row, uint8_t column)
+void pcd8544::data(uint8_t data)
+{
+	send(1, data);
+}
+
+void pcd8544::command(uint8_t data)
+{
+	send(0, data);
+}
+
+void pcd8544::send(uint8_t data_or_command, uint8_t data)
+{
+	digitalWrite(dc, data_or_command);
+	digitalWrite(cs, LOW);
+	if (hardware_spi_num == 0) {
+		shiftOut(sdin, sclk, MSBFIRST, data);
+	} else {
+#ifdef BOARD_maple
+		spi_tx_byte(hardware_spi_num, data);
+#else
+		SPDR = data;
+		while(!(SPSR & (1<<SPIF))) ;
+#endif
+	}
+	digitalWrite(cs, HIGH);
+	if(data_or_command)
+		inc_row_column();
+}
+
+
+void pcd8544::setCursor(uint8_t column, uint8_t row)
+{
+	gotoRc(row, 6*column);
+}
+
+
+void pcd8544::gotoRc(uint8_t row, uint8_t column)
 {
 	if (row >= LCD_LINES)
 		row %= LCD_LINES;
-	lcd_cmd(LCD_SET_X_ADDRESS | column);
-	lcd_cmd(LCD_SET_Y_ADDRESS | row);
-	lcd_current_row = row;
-	lcd_current_column = column;
+	if (column >= LCD_WIDTH)
+		row %= LCD_WIDTH;
+	command(LCD_SET_X_ADDRESS | column);
+	command(LCD_SET_Y_ADDRESS | row);
+	current_row = row;
+	current_column = column;
 }
 
-
-void lcd_char(char ch)
+void pcd8544::inc_row_column(void)
 {
-	uint8_t i;
-	for (i = 0; i < 5; i++)
-		lcd_data(pgm_read_byte(&font5x7[ch-' '][i]) <<1);
-	lcd_data(0);
+	if (++current_column >= LCD_WIDTH) {
+		current_column = 0;
+		if (++current_row >= LCD_LINES)
+			    current_row = 0;
+	}
 }
 
 
-void lcd_smallnum(uint8_t num, uint8_t shift)
+void pcd8544::smallNum(uint8_t num, uint8_t shift)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
-		lcd_data(pgm_read_byte(&small_num[num][i])<<shift);
-}
-
-void lcd_string(char *s)
-{
-	while (*s)
-		lcd_char(*s++);
-}
-
-#if USE_FONT_8x14
-// Draw a char higher than 8 pixels. Uses data in row order.
-// Upper left corner of a char is on current row.
-void lcd_big_char(char ch)
-{
-	uint8_t cp, rp, r, c, i
-		startrow = lcd_current_row,
-		column   = lcd_current_column;
-	for (r = 0; r < 2; r++) {
-		lcd_goto(startrow + r, column);
-		for (c = 0; c < 8; c++) {
-			cp = 0;
-			for (i = 0; i < (r<1?8:5); i++) {
-				rp = pgm_read_byte(&Fixed_8x13[ch-' '][i+8*r]);
-				if (rp & (0x80>>c))
-					cp |= 1<<i;
-			}
-			lcd_data(cp);
-		}
-	}
-	lcd_goto(startrow, 8+column);
-}
-
-void lcd_big_string(char *s)
-{
-	while (*s)
-		lcd_big_char(*s++);
-}
-#endif
-
-
-void lcd_clear_rest_of_line(void)
-{
-	while (lcd_current_column != 0)
-		lcd_data(0);
+		data(pgm_read_byte(&small_num[num][i])<<shift);
 }
