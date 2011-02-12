@@ -10,10 +10,11 @@
 #ifdef BOARD_maple
 #define ADMAX 4095
 #define ADPIN 15
-#define Serial SerialUSB
+#define PROGMEM
 #else // Arduino
 #define ADMAX 1023
 #define ADPIN 0
+#include <avr/pgmspace.h>
 #endif
 
 byte dc_pin = 5;    // Data/Command
@@ -24,6 +25,14 @@ byte cs_pin = 7;    // Chip select (SCE)
 // Hardware SPI will be used (SPI1 on the Maple).
 // sdin (MOSI) is on pin 13 and sclk on pin 11.
 pcd8544 lcd(dc_pin, reset_pin, cs_pin);
+
+
+// 2 rows by 16 cols smiley. First 15 bytes is first row,
+// next 16 is second.
+byte smile[] PROGMEM = {
+	0xE0,0x18,0x04,0x02,0x02,0x31,0x31,0x01,0x01,0x21,0x21,
+	0x02,0x02,0x04,0x18,0xE0,0x07,0x18,0x20,0x42,0x44,0x88,
+	0x88,0x88,0x88,0x88,0x88,0x44,0x42,0x20,0x18,0x07};
 
 
 void setup(void)
@@ -55,13 +64,16 @@ void setup(void)
 		lcd.smallNum(i);
 
 	lcd.setCursor(0, 3);
-	lcd.println("   PCD8544");
-	lcd.println("      on  ");
+	lcd.println(" PCD8544");
+	lcd.println("    on");
 #ifdef BOARD_maple
-	lcd.print("  the Maple");
+	lcd.print(" the Maple");
 #else
-	lcd.print("   Arduino");
+	lcd.print(" Arduino");
 #endif
+	// Draw an image.
+	lcd.gotoRc(4, 57);
+	lcd.bitmap(smile, 2, 16);
 }
 
 

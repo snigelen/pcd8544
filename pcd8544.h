@@ -26,7 +26,7 @@ public:
 	void gotoRc(uint8_t row, uint8_t pixel_column);
 
 	// Send data to lcd. Will draw data as one pixel wide, 8 pixel high.
-	// MSB up.
+	// LSB up.
 	void data(uint8_t data);
 
 	// Small numbers. 0<= num <=9 for number and num = 10 for decimal
