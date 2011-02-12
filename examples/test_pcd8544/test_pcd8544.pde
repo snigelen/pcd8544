@@ -20,7 +20,7 @@
 // Create a pcd8544 object.
 // Parameters are: dc_pin, reset_pin, cs_pin
 // Hardware SPI will be used (SPI1 on the Maple).
-// sdin (MISO) is on pin 13 and sclk on pin 11.
+// sdin (MOSI) is on pin 13 and sclk on pin 11.
 pcd8544 lcd(5, 6, 7);
 
 
