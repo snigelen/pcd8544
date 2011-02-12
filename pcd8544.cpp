@@ -181,6 +181,15 @@ pcd8544::pcd8544(uint8_t dc_pin, uint8_t reset_pin, uint8_t cs_pin, uint8_t hard
 #endif
 }
 
+pcd8544::pcd8544(uint8_t dc_pin, uint8_t reset_pin, uint8_t cs_pin, uint8_t sclk_pin, uint8_t sdin_pin)
+{
+	dc = dc_pin;
+	cs = cs_pin;
+	reset = reset_pin;
+	sclk = sclk_pin;
+	sdin = sdin_pin;
+	hardware_spi_num = 0;
+}
 
 void pcd8544::begin(void)
 {
@@ -319,3 +328,16 @@ void pcd8544::clearRestOfLine(void)
 		data(0);
 }
 
+
+void pcd8544::bitmap(uint8_t bdata[], uint8_t rows, uint8_t columns)
+{
+	uint8_t row, column, i;
+	uint8_t toprow = current_row;
+	uint8_t startcolumn = current_column;
+	for (row = 0, i = 0; row < rows; row++) {
+		gotoRc(row+toprow, startcolumn);
+		for (column = 0; column < columns; column++) {
+			data(pgm_read_byte(&bdata[i++]));
+		}
+	}
+}
