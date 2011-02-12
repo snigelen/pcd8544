@@ -16,20 +16,20 @@
 #define ADPIN 0
 #endif
 
+byte dc_pin = 5;    // Data/Command
+byte reset_pin = 6;
+byte cs_pin = 7;    // Chip select (SCE)
 
 // Create a pcd8544 object.
-// Parameters are: dc_pin, reset_pin, cs_pin
 // Hardware SPI will be used (SPI1 on the Maple).
 // sdin (MOSI) is on pin 13 and sclk on pin 11.
-pcd8544 lcd(5, 6, 7);
+pcd8544 lcd(dc_pin, reset_pin, cs_pin);
 
 
 void setup(void)
 {
 #ifdef BOARD_maple
 	pinMode(ADPIN, INPUT_ANALOG);
-#else
-	Serial.begin(115200);
 #endif
 	lcd.begin();  // Always call lcd.begin() first.
 	lcd.clear();
@@ -46,12 +46,12 @@ void setup(void)
 	lcd.println("Temp: ");   // println skips to second line
 
 	// Draw a double line
-	for (uint8_t i = 0; i < PCD8544_WIDTH/2-2; i++)
+	for (byte i = 0; i < PCD8544_WIDTH/2-2; i++)
 		lcd.data(0b00010100);
 	lcd.data(0); // A blink pixel column
 
 	// Some small numbers
-	for (uint8_t i = 0; i < 11; i++)
+	for (byte i = 0; i < 11; i++)
 		lcd.smallNum(i);
 
 	lcd.setCursor(0, 3);
@@ -68,12 +68,13 @@ void setup(void)
 
 void loop(void)
 {
-	uint8_t i, val;
+	byte i, val;
 
 	// Draw bar on row 0, pixel column 8*5
 	lcd.gotoRc(0, 8*5);
 	val = map(analogRead(ADPIN), 0, ADMAX, 8*5, 84);
-	// the bar
+
+        // the bar
 	for (i = 5*8; i < val; i++)
 		lcd.data(0b01111100); // Bar
 	lcd.clearRestOfLine();
@@ -82,6 +83,7 @@ void loop(void)
 	lcd.gotoRc(1, 8*5);
 	lcd.print("22.8");
 	lcd.data(0);
+
 	// A degree sign
 	lcd.data(0b00000100); // Degree
 	lcd.data(0b00001010);
