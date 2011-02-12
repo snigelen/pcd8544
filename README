@@ -1,6 +1,6 @@
-This is a small library for the lcd controller pcd8544, used in 
+This is a library for the lcd controller pcd8544, used in 
 Nokia 3310, 5110 and probably others, for Arduino (http://www.arduino.cc/) and
-The Maple (http://leaflabs.com/devices/maple/). Since the controller is'nt
+The Maple (http://leaflabs.com/devices/maple/). Since the controller isn't
 pixel adressable it is used most as a text display, but simple graphics is
 pretty straightforward to implement.
 
