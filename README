@@ -17,7 +17,7 @@ In the examples the lcd is connected as:
 
 LCD        Arduino/Maple
 8-LED      220ohm resistor to 5V or 22ohm to 3V3
-7-SCLK     11 (cs_pin)
+7-SCLK     11 (sclk_pin)
 6-DN(MOSI) 13 (sdin_pin)
 5-D/C      5  (dc_pin)
 4-RST      6  (reset_pin)
