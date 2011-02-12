@@ -12,3 +12,16 @@ Both hard and software SPI can be used to communicate with the display.
 I have used it with an Arduino Duemillanove, a Maple rev.3, and 
 "Graphic LCD 84x48 - Nokia 5110" from Sparkfun 
 (http://www.sparkfun.com/products/10168).
+
+In the examples the lcd is connected as:
+
+LCD        Arduino/Maple
+8-LED      220ohm resistor to 5V or 22ohm to 3V3
+7-SCLK     11 (cs_pin)
+6-DN(MOSI) 13 (sdin_pin)
+5-D/C      5  (dc_pin)
+4-RST      6  (reset_pin)
+3-SCE      7  (cs_pin)
+2-GND      GND
+1-VCC      3V3 (NOT 5V!)
+
