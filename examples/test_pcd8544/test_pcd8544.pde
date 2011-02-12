@@ -67,7 +67,7 @@ void setup(void)
 	lcd.println(" PCD8544");
 	lcd.println("    on");
 #ifdef BOARD_maple
-	lcd.print(" the Maple");
+	lcd.print("the Maple");
 #else
 	lcd.print(" Arduino");
 #endif
