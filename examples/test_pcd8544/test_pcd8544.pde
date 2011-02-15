@@ -22,9 +22,13 @@ byte reset_pin = 6;
 byte cs_pin = 7;    // Chip select (SCE)
 
 // Create a pcd8544 object.
-// Hardware SPI will be used (SPI1 on the Maple).
-// sdin (MOSI) is on pin 13 and sclk on pin 11.
+// Hardware SPI will be used.
+// (SPI1 on the Maple, add 2 as last argument for SPI2 (untested)).
+// sdin (MOSI) is on pin 11 and sclk on pin 13.
 pcd8544 lcd(dc_pin, reset_pin, cs_pin);
+
+// Use 5 arguments for soft SPI. Any pins can be choosed.
+// pcd8544 lcd(dc_pin, reset_pin, cs_pin, 11, 13);
 
 
 // 2 rows by 16 cols smiley. First 15 bytes is first row,
