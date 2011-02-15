@@ -27,11 +27,12 @@ byte cs_pin = 7;    // Chip select (SCE)
 // sdin (MOSI) is on pin 11 and sclk on pin 13.
 pcd8544 lcd(dc_pin, reset_pin, cs_pin);
 
-// Use 5 arguments for soft SPI. Any pins can be choosed.
-// pcd8544 lcd(dc_pin, reset_pin, cs_pin, 11, 13);
+// Use 5 arguments for soft SPI. Any pins can be choosen.
+// byte sdin_pin = 11, sclk_pin = 13;
+// pcd8544 lcd(dc_pin, reset_pin, cs_pin, sdin_pin, sclk_pin);
 
 
-// 2 rows by 16 cols smiley. First 15 bytes is first row,
+// 2 rows by 16 cols smiley. First 16 bytes is first row,
 // next 16 is second.
 byte smile[] PROGMEM = {
 	0xE0,0x18,0x04,0x04,0x02,0x32,0x32,0x02,0x02,0x22,0x22,

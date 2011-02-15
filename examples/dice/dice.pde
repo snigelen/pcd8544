@@ -107,7 +107,7 @@ void loop(void)
 
 	// Make theese static so the values are remembered.
 	// They are all initialized to 0.
-	static int n;
+	static unsigned int n;
 	static int outcomes[6], max;
 
 	// Draw a random integer between 0 and 5
@@ -125,6 +125,7 @@ void loop(void)
 	lcd.clearRestOfLine();
 
 	// Total number
+	lcd.setCursor(0, 1);
 	lcd.print("n=");
 	lcd.print(n, DEC);
 
