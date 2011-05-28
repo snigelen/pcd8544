@@ -4,6 +4,15 @@
 #include <stdint.h>
 #include <Print.h>
 
+
+#if defined(BOARD_maple)
+#define MAPLE 1
+
+#ifndef SPI_NUM
+#define SPI_NUM 1
+#endif
+#endif
+
 class pcd8544 : public Print {
 public:
 	// Constructor for harware SPI

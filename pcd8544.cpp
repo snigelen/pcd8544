@@ -1,16 +1,19 @@
 #include "WProgram.h"
 
-#ifdef BOARD_maple
-#include <spi.h>
+#include <stdint.h>
+#include "pcd8544.h"
+
+
+#ifdef MAPLE
+#include <HardwareSPI.h>
 #define PROGMEM __attribute__ ((section (".USER_FLASH")))
 #define pgm_read_byte(adr) *(adr)
+
+HardwareSPI spi(SPI_NUM);
 
 #else  // Arduino stuff
 #include <avr/pgmspace.h>
 #endif
-
-#include <stdint.h>
-#include "pcd8544.h"
 
 
 // LCD commands, Table 1, page 14
@@ -173,7 +176,7 @@ pcd8544::pcd8544(uint8_t dc_pin, uint8_t reset_pin, uint8_t cs_pin, uint8_t hard
 		hardware_spi_num = 2;
 	sdin = 11;
 	sclk = 13;
-#ifdef BOARD_maple
+#ifdef MAPLE
 	if (hardware_spi_num  == 2) {
 		sdin = 32;
 		sclk = 34;
@@ -199,15 +202,16 @@ void pcd8544::begin(void)
 	pinMode(sdin,  OUTPUT);
 	pinMode(sclk,  OUTPUT);
 
-#ifdef BOARD_maple
+#ifdef MAPLE
 	timer_set_mode(TIMER3, 2, TIMER_DISABLED);
         timer_set_mode(TIMER3, 1, TIMER_DISABLED);
 #endif
 
 
 	if (hardware_spi_num > 0) {
-#ifdef BOARD_maple
-		spi_init(hardware_spi_num, SPI_PRESCALE_16, SPI_MSBFIRST, 0);
+#ifdef MAPLE
+		spi.begin(SPI_4_5MHZ, MSBFIRST, 0);
+		//spi_init(hardware_spi_num, SPI_PRESCALE_16, SPI_MSBFIRST, 0);
 #else
 		pinMode(10, OUTPUT); // To ensure master mode
 		SPCR |= (1<<SPE) | (1<<MSTR);
@@ -273,8 +277,9 @@ void pcd8544::send(uint8_t data_or_command, uint8_t data)
 	if (hardware_spi_num == 0) {
 		shiftOut(sdin, sclk, MSBFIRST, data);
 	} else {
-#ifdef BOARD_maple
-		spi_tx_byte(hardware_spi_num, data);
+#ifdef MAPLE
+		//spi_tx_byte(hardware_spi_num, data);
+		spi.transfer(data);
 #else
 		SPDR = data;
 		while(!(SPSR & (1<<SPIF))) ;
