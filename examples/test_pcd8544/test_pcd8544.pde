@@ -5,6 +5,18 @@
 
 #include "pcd8544.h"
 
+/*
+  Display, top row left to right - Maple/Arduino
+
+  Vcc                            - 3.3V
+  GND                            - GND
+  SCE - chip enable/select       - 7
+  RST                            - 6
+  D/C                            - 5
+  DN - MOSI                      - 11
+  SCLK                           - 13
+  LED                            - resistor - Vcc or unconnected
+ */
 
 // Some Aruino/Maple specific stuff
 #ifdef BOARD_maple
