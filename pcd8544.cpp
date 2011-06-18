@@ -3,15 +3,16 @@
 #include <stdint.h>
 #include "pcd8544.h"
 
-
 #ifdef MAPLE
 #include <HardwareSPI.h>
+#include <maple.h>
 #define PROGMEM __attribute__ ((section (".USER_FLASH")))
 #define pgm_read_byte(adr) *(adr)
 
 HardwareSPI spi(SPI_NUM);
 
 #else  // Arduino stuff
+#include <pins_arduino.h>
 #include <avr/pgmspace.h>
 #endif
 
@@ -174,9 +175,12 @@ pcd8544::pcd8544(uint8_t dc_pin, uint8_t reset_pin, uint8_t cs_pin, uint8_t hard
 	hardware_spi_num = hardware_spi;
 	if (hardware_spi_num > 2)
 		hardware_spi_num = 2;
-	sdin = 11;
+#ifndef MAPLE
+	sdin = MOSI;
+	sclk = SCK;
+#else
+	sdin = 11;  // Change to maple names
 	sclk = 13;
-#ifdef MAPLE
 	if (hardware_spi_num  == 2) {
 		sdin = 32;
 		sclk = 34;
@@ -213,7 +217,7 @@ void pcd8544::begin(void)
 		spi.begin(SPI_4_5MHZ, MSBFIRST, 0);
 		//spi_init(hardware_spi_num, SPI_PRESCALE_16, SPI_MSBFIRST, 0);
 #else
-		pinMode(10, OUTPUT); // To ensure master mode
+		pinMode(SS, OUTPUT); // To ensure master mode
 		SPCR |= (1<<SPE) | (1<<MSTR);
 #endif
 	}
