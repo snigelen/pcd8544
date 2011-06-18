@@ -146,16 +146,34 @@ void loop(void)
 
 
 // Draw a vertical bar. Maybe make this part of the library.
-void lcd_bar(uint8_t bottom_line, uint8_t start_col, uint8_t height, uint8_t width, uint8_t maxheight)
+void lcd_bar(uint8_t bottom_line, uint8_t start_col, uint8_t height,
+	     uint8_t width, uint8_t maxheight)
 {
-        uint8_t i, j;
-        for (i = 0; i <= maxheight/8; i++) {
-                lcd.gotoRc(bottom_line-i, start_col);
-                for (j = 0; j < width; j++) {
-                        if (height < 8*(i+1))
-                                lcd.data(0xFF << (8-(height-8*i)));
-                        else
-                                lcd.data(0xFF);
-                }
-        }
+	uint8_t i, h, rest, w;
+	
+	h = height/8;
+	rest = height-8*h;
+
+	i = 0;
+	// Draw completely filled
+	while(i < h) {
+		lcd.gotoRc(bottom_line-i, start_col);
+		for (w = 0; w < width; w++)
+			lcd.data(0xFF);
+		i++;
+	}
+	// Draw parly filled
+	if (rest) {
+		lcd.gotoRc(bottom_line-i, start_col);
+		for (w = 0; w < width; w++)
+			lcd.data(0xFF<<(8-rest));
+		i++;
+	}
+	// Clear rest
+	while(i < maxheight/8 + 1) {
+		lcd.gotoRc(bottom_line-i, start_col);
+		for (w = 0; w < width; w++)
+			lcd.data(0);
+		i++;
+	}
 }
