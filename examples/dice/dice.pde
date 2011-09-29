@@ -4,7 +4,7 @@
 
 #include "pcd8544.h"
 
-#ifdef BOARD_maple
+#ifndef __AVR-GCC__
 #define PROGMEM __attribute__ ((section (".USER_FLASH")))
 #define ADMAX 4095
 #define ADPIN 15

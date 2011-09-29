@@ -5,7 +5,7 @@
 #include <Print.h>
 
 
-#if defined(BOARD_maple)
+#ifndef __AVR-GCC__
 #define MAPLE 1
 
 #ifndef SPI_NUM

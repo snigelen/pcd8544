@@ -19,7 +19,7 @@
  */
 
 // Some Aruino/Maple specific stuff
-#ifdef BOARD_maple
+#ifndef __AVR-GCC__
 #define ADMAX 4095
 #define ADPIN 15
 #define PROGMEM
