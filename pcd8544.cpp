@@ -1,5 +1,3 @@
-#include "WProgram.h"
-
 #include <stdint.h>
 #include "pcd8544.h"
 
@@ -248,7 +246,7 @@ void pcd8544::clear(void)
 		data(0);
 }
 
-void pcd8544::write(uint8_t ch)
+WRITE_RESULT pcd8544::write(uint8_t ch)
 {
 	uint8_t i;
 
@@ -261,6 +259,8 @@ void pcd8544::write(uint8_t ch)
 			data(pgm_read_byte(&font6x8[ch-' '][i]) <<1);
 		data(0);
 	}
+	
+	WRITE_RETURN;
 }
 
 

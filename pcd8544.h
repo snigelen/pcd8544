@@ -4,6 +4,16 @@
 #include <stdint.h>
 #include <Print.h>
 
+#if ARDUINO >= 100
+  #include <Arduino.h> // Arduino 1.0
+  #define WRITE_RESULT size_t
+  #define WRITE_RETURN return 1;
+#else
+  #include <WProgram.h> // Arduino 0022
+  #define WRITE_RESULT void
+  #define WRITE_RETURN
+#endif
+
 
 #ifndef __AVR-GCC__
 #define MAPLE 1
@@ -49,7 +59,7 @@ public:
 private:
 	void send(uint8_t dc, uint8_t data);
 	void command(uint8_t data);
-	virtual void write(uint8_t ch);
+	virtual WRITE_RESULT write(uint8_t ch);
 	void inc_row_column(void);
 	uint8_t dc;
 	uint8_t cs;
